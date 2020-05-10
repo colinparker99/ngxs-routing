@@ -8,6 +8,9 @@ import { CoreState } from './core/state/core.state';
 import { NgxsRouterPluginModule } from '@ngxs/router-plugin';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatTabsModule } from '@angular/material/tabs';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,7 +26,9 @@ import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
       developmentMode: true
     }),
     NgxsReduxDevtoolsPluginModule.forRoot(),
-    NgxsRouterPluginModule.forRoot()
+    NgxsRouterPluginModule.forRoot(),
+    BrowserAnimationsModule,
+    MatTabsModule
   ],
   providers: [],
   bootstrap: [

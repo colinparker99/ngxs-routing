@@ -8,8 +8,8 @@ const routes: Routes = [
     path: ':id',
     component: CustomerComponent,
     children: [
-      { path: 'audits', component: CustomerComponent },
-      { path: 'details', component: CustomerComponent },
+      { path: 'audits', loadChildren: () => import('./audits/audits.module').then(m => m.AuditsModule)  },
+      { path: 'details', loadChildren: () => import('./details/details.module').then(m => m.DetailsModule) },
       { path: '', redirectTo: 'details', pathMatch: 'full' }
     ]
   }
@@ -22,5 +22,5 @@ const routes: Routes = [
 export class AppRoutingModule {
   static components = [
     CustomerComponent
-  ]
+  ];
 }
