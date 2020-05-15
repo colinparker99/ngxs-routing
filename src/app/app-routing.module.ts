@@ -8,7 +8,7 @@ const routes: Routes = [
     path: ':id',
     component: CustomerComponent,
     children: [
-      { path: 'audits', loadChildren: () => import('./audits/audits.module').then(m => m.AuditsModule)  },
+      { path: 'audits', loadChildren: () => import('./audits/audits.module').then(m => m.AuditsModule) },
       { path: 'details', loadChildren: () => import('./details/details.module').then(m => m.DetailsModule) },
       { path: '', redirectTo: 'details', pathMatch: 'full' }
     ]
