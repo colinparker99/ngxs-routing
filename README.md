@@ -2,26 +2,43 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.5.
 
-## Development server
+# Summary
+The purpose of this project is to demonstrate several NGXS state management scenarios and to better understand what the preferred ways to handle them are.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+# Scenarios
 
-## Code scaffolding
+## Initialize State from a Route Parameter
+I could have the main app's component read the ID from the route and dispatch an initialize action to `Core`, but I tend to use the following in the `NgxsOnInit` lifecycle hook:
+``` javascript
+this.actions$.pipe(
+      ofActionSuccessful(RouterNavigation),
+      tap(action => {
+        // Initialize
+      })
+    ).subscribe();
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+The thought there is that the state is capable of self-initializing, so keep the logic as close to the state as possible.
 
-## Build
+## Access Centralized State
+This project contains several lazy-loaded feature modules, each with their own state, that get data from the app's cross-cutting state (`Core`) that is also in a module. I put the `Core` state in a module rather than leave it in the main app because it is referenced from other modules and didn't want to create circular dependencies between modules consumed by App and App itself.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Generally I have `Core` contain things like the main entity's ID, read from the route, and any sort of counts that are displayed on tabs. For example, audit counts.
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+## Initialize Lazy-Loaded Module State
+In this example project I do one of the following to initialize state in the lazy-laoded feature modules that depends on a value, `customerId`, from `Core` state:
+- Subscribe to the `Core` `customerId` and handle initialization when it is updated:
+    ``` javascript
+    constructor(private store: Store) {
+        store.select(state => state.core.customerId).pipe(
+            tap(customerId => store.dispatch(new Audits.InitializeAuditsData(customerId)))
+        ).subscribe();
+    }
+    ```
+- Get a snapshot of the `Core` state when the state loads. This would be when a lazy-loaded module is loaded after `Core` has initialized:
+    ``` javascript
+    ngxsOnInit(context: StateContext<AuditsStateModel>) {
+        const snapshotCustomerId = this.store.selectSnapshot(state => state.core.customerId);
+        this.store.dispatch(new Audits.InitializeAuditsData(snapshotCustomerId));
+    }
+    ```
